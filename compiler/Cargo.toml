@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+members = [
+    "unit_resolver",
+    "typechecker",
+    "semantic",
+    "autodiff",
+    "tensor_lowering",
+    "codegen",
+]
+
+[workspace.package]
+version    = "0.1.0"
+edition    = "2021"
+authors    = ["DeepcometAI"]
+license    = "MIT"
+repository = "https://github.com/DeepcometAI/nova-ai-lang"
+
+[workspace.dependencies]
+thiserror = "1"
+log       = "0.4"

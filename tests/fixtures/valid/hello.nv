@@ -1,0 +1,3 @@
+mission main() -> Void {
+    transmit("Hello, universe!")
+}

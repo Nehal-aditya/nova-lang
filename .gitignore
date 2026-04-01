@@ -1,0 +1,57 @@
+# Build artifacts
+target/
+build/
+dist/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# C/C++ build
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Rust
+Cargo.lock
+**/target/
+
+# Java / Maven
+*.class
+*.jar
+*.war
+*.ear
+.classpath
+.project
+.settings/
+target/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# NOVA compiler output
+*.nv.out
+*.nvo
+nova_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

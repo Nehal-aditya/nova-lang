@@ -1,0 +1,7 @@
+-- hello_universe.nv
+-- The simplest NOVA program.
+-- Entry point: mission main()
+
+mission main() -> Void {
+    transmit("Hello, universe!")
+}

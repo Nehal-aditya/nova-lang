@@ -1,0 +1,19 @@
+-- delta_v.nv
+-- Tsiolkovsky rocket equation: Δv = Isp * g0 * ln(m_wet / m_dry)
+-- Demonstrates: unit types, named arguments, string interpolation
+
+mission delta_v(isp: Float[s], m_wet: Float[kg], m_dry: Float[kg]) -> Float[m/s] {
+    let g0 = 9.80665[m/s²]
+    return isp * g0 * ln(m_wet / m_dry)
+}
+
+mission main() -> Void {
+    -- Falcon 9 first stage (approximate)
+    let dv = delta_v(
+        isp   = 311.0[s],
+        m_wet = 549054.0[kg],
+        m_dry = 25600.0[kg]
+    )
+    transmit("Falcon 9 Δv ≈ {dv as [km/s]:.2} km/s")
+    -- Expected: ~9.74 km/s
+}

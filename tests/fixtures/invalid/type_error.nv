@@ -1,0 +1,5 @@
+-- This file should produce a type error.
+-- Error: cannot return Float[m/s] where Float[kg] is expected
+mission mass() -> Float[kg] {
+    return 9.8[m/s]
+}

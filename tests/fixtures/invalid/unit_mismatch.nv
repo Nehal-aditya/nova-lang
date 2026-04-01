@@ -1,0 +1,6 @@
+-- This file should produce a compile-time unit error.
+-- Error: cannot add Float[kg] and Float[m]
+mission main() -> Void {
+    let wrong = 1.0[kg] + 1.0[m]
+    transmit("{wrong}")
+}
