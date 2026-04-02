@@ -4,6 +4,37 @@
 
 This document is the engineering roadmap for building the NOVA programming language: a compiled, statically typed, general-purpose language designed for the next generation of AI, data science, astronomy, cosmology, and rocket science.
 
+### Language Philosophy
+
+NOVA unifies traits from multiple programming languages:
+- **Python**: Readable syntax, scientific ecosystem feel, scripting
+- **Rust**: Ownership/borrowing, traits, zero-cost abstractions, safety  
+- **C**: Manual memory control, pointers, raw performance, FFI
+- **Java**: Interfaces, class hierarchies, OOP patterns, validation
+- **Haskell/ML**: Type inference, pattern matching, algebraic data types
+- **Julia**: Multiple dispatch, scientific computing, unit-aware arithmetic
+- **Fortran**: Array operations, numerical stability, HPC heritage
+
+### Multi-Language Compiler Architecture
+
+The NOVA compiler uses different languages for different stages:
+
+| Stage | Language | LOC | Status |
+|-------|----------|-----|--------|
+| Lexer | C | 576 | Complete |
+| Parser | C | 973 | Complete |
+| Unit Resolver | Rust | 1,391 | Complete |
+| Type Checker | Rust | 2,065 | Complete |
+| Semantic Analyzer | Rust | 1,208 | Complete |
+| Autodiff System | Rust | 1,076 | Complete |
+| Tensor Lowering | Rust | 553 | Complete |
+| IR Emitter | Rust | 708 | Complete (string-based) |
+| Interface Validator | Java | 1,124 | Complete |
+
+**Total: ~9,500+ lines of production compiler code**
+
+---
+
 NOVA's syntax is finalised at v0.2. The following decisions are locked:
 - `absorb` for imports (replaces `from ... import`)
 - `pipeline [...]` for ordered transform chains

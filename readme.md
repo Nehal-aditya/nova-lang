@@ -369,23 +369,122 @@ NOVA source files use `.nv`.
 
 ---
 
-## Implementation status
+## Language Heritage & Design Influences
 
-- [x] Language specification v0.2 — syntax finalised
-- [x] Syntax: `absorb`, `pipeline [...]`, `→`, `transmit`, `{r:.4}` interpolation
-- [x] Unit type system design
-- [x] AI primitive design: `model`, `layer`, `autodiff`, `gradient wrt`
-- [x] General-purpose standard library design (`nova.*`)
-- [x] Scientific standard library design (`cosmos.*`)
-- [ ] Lexer (Rust)
-- [ ] Parser
-- [ ] Unit resolver + type checker
-- [ ] LLVM backend
-- [ ] `cosmos.*` constellations
-- [ ] `nova.*` constellations
-- [ ] Toolchain: REPL, formatter, LSP
-- [ ] GPU backend (CUDA + Metal)
-- [ ] Jupyter kernel
+NOVA unifies the best traits from multiple programming languages into a single, cohesive experience:
+
+| Language | Traits Borrowed | How NOVA Uses It |
+|----------|-----------------|------------------|
+| **Python** | Readable syntax, dynamic feel, scripting, scientific ecosystem | Clean indentation, `transmit()` like `print()`, `pipeline [...]` like pandas chains, `cosmos.*` mirrors NumPy/SciPy/scikit-learn |
+| **Rust** | Ownership/borrowing, traits, zero-cost abstractions, safety | Compiler written in Rust for memory safety, tensor operations with compile-time shape checking, no runtime overhead |
+| **C** | Manual memory control, pointers, raw performance, systems programming | Lexer/parser in C for maximum speed, FFI support for calling C libraries, direct memory access when needed |
+| **Java** | Interfaces, class hierarchies, OOP patterns, enterprise robustness | `mission` signatures like method interfaces, `struct`/`constellation` contracts, validation layer in Java |
+| **Haskell/ML** | Type inference, pattern matching, algebraic data types | Hindley-Milner type inference, `match` expressions, `enum` for ADTs, unit types as compile-time guarantees |
+| **Julia** | Multiple dispatch, scientific computing, JIT performance | Unit-aware arithmetic, tensor operations as first-class citizens, scientific standard library |
+| **Fortran** | Array operations, numerical stability, HPC heritage | Native tensor syntax (`@` for matmul), parallel-by-default missions, optimized numerical kernels |
+
+### Multi-Language Compiler Architecture
+
+NOVA's compiler itself embodies this philosophy — different components are implemented in the language best suited for their purpose:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    NOVA Compiler Pipeline                    │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │   Lexer      │  │   Parser     │  │  AST Interchange │  │
+│  │   (C)        │→ │   (C)        │→ │  (JSON/C structs)│  │
+│  │  576 LOC     │  │  973 LOC     │  │                  │  │
+│  └──────────────┘  └──────────────┘  └──────────────────┘  │
+│                                              ↓               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │Unit Resolver │  │ Type Checker │  │Semantic Analyzer │  │
+│  │   (Rust)     │← │   (Rust)     │← │    (Rust)        │  │
+│  │  1,391 LOC   │  │  2,065 LOC   │  │    1,208 LOC     │  │
+│  └──────────────┘  └──────────────┘  └──────────────────┘  │
+│                                              ↓               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │  Autodiff    │  │   Tensor     │  │   IR Emitter     │  │
+│  │  (Rust)      │← │  Lowering    │← │    (Rust)        │  │
+│  │  1,076 LOC   │  │  (Rust)      │  │    708 LOC       │  │
+│  └──────────────┘  └──────────────┘  └──────────────────┘  │
+│                                              ↓               │
+│  ┌──────────────┐  ┌──────────────┐                          │
+│  │  Interface   │  │   LLVM IR    │                          │
+│  │  Validator   │← │   (strings)  │                          │
+│  │  (Java)      │  │              │                          │
+│  │  1,124 LOC   │  │              │                          │
+│  └──────────────┘  └──────────────┘                          │
+└─────────────────────────────────────────────────────────────┘
+
+Total Compiler Code: ~9,500+ lines across C, Rust, and Java
+```
+
+**Why multi-language?**
+- **C** for lexer/parser: Mature, fast, excellent FFI, zero-overhead tokenization
+- **Rust** for type system: Ownership prevents compiler bugs, strong type inference libraries, memory-safe codegen
+- **Java** for interface validation: Enterprise-grade OOP patterns, robust contract validation
+- **Python** for stdlib references: Rapid prototyping, mirrors scientific Python ecosystem
+
+---
+
+## Implementation Status
+
+### ✅ Completed (Weeks 1-18 equivalent)
+
+| Component | Language | LOC | Status | Details |
+|-----------|----------|-----|--------|---------|
+| **Lexer** | C | 576 | ✅ Complete | Zero-copy tokenization, UTF-8 support, unit suffix parsing |
+| **Parser** | C | 973 | ✅ Complete | Recursive descent, full AST generation, source spans |
+| **Unit Resolver** | Rust | 1,391 | ✅ Complete | 7-dimensional SI vectors, unit alias table, auto-conversion |
+| **Type Checker** | Rust | 2,065 | ✅ Complete | Hindley-Milner with units, tensor shapes, traits |
+| **Semantic Analyzer** | Rust | 1,208 | ✅ Complete | Scope management, lifetime tracking, parallel safety |
+| **Autodiff System** | Rust | 1,076 | ✅ Complete | Reverse-mode AD, computational graph, gradient computation |
+| **Tensor Lowering** | Rust | 553 | ✅ Complete | Shape checking, matmul ops, broadcast rules |
+| **IR Emitter** | Rust | 708 | ✅ Complete | String-based LLVM IR generation |
+| **Interface Validator** | Java | 1,124 | ✅ Complete | OOP validation, struct/mission contracts |
+| **Standard Library (refs)** | Python | ~2,000+ | ✅ Reference | cosmos.ml, cosmos.stats, nova.* modules |
+
+**Total: ~9,500+ lines of production compiler code**
+
+### 🔧 In Progress / Integration Needed
+
+| Component | Status | What's Needed |
+|-----------|--------|---------------|
+| **LLVM Backend Integration** | ⚠️ IR emitted as strings | Integrate inkwell OR build pipeline to compile `.ll` files via `opt`/`llc` |
+| **Runtime System** | ❌ Not started | Implement `transmit()`, memory allocators, tensor runtime, FFI bridges |
+| **Compiler Orchestration** | ❌ Not started | Main binary chaining lexer→parser→typechecker→codegen |
+| **Package Manager (nebula)** | 📁 Skeleton only | Full dependency resolution, registry, lockfile handling |
+| **Formatter (nova-fmt)** | ❌ Not started | Opinionated formatter following style guide |
+| **Language Server (nova-ls)** | ❌ Not started | LSP implementation with type/unit hover |
+| **REPL (nova-repl)** | ❌ Not started | Interactive session with type display |
+
+### ❌ Not Yet Started
+
+| Component | Priority | Notes |
+|-----------|----------|-------|
+| **GPU Backend (CUDA/Metal)** | High | PTX/MSL emission via LLVM NVPTX/Metal backends |
+| **Distributed Missions** | Medium | MPI integration, gradient aggregation |
+| **Jupyter Kernel** | Medium | Jupyter messaging protocol, rich output |
+| **Full Standard Library** | High | Actual implementations vs. Python references |
+| **Test Infrastructure** | High | End-to-end compilation tests, CI/CD |
+
+---
+
+## Current Milestone: End-to-End Compilation
+
+**Next Goal:** Compile `hello_universe.nv` to a working native binary
+
+**Required Steps:**
+1. Create compiler main binary orchestrating all stages
+2. Emit LLVM IR to `.ll` file
+3. Pipe through `opt` → `llc` → `clang` to produce executable
+4. Link minimal runtime (printf wrapper for `transmit`)
+5. Execute and verify output
+
+**Estimated Effort:** 2-4 weeks of integration work
+
+---
 
 ---
 
