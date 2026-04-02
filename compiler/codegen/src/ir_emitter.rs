@@ -17,6 +17,9 @@ pub enum CodegenError {
     #[error("invalid operand: {0}")]
     InvalidOperand(String),
 
+    #[error("unsupported operation: {0}")]
+    UnsupportedOperation(String),
+
     #[error("ir generation failed: {0}")]
     IRGenerationFailed(String),
 }
@@ -97,9 +100,23 @@ impl FunctionBuilder {
                 right.ty.to_string()
             )));
         }
+        let op = match left.ty {
+            NovaType::Float => "fadd",
+            NovaType::Int => "add",
+            NovaType::Bool | NovaType::Void => {
+                return Err(CodegenError::UnsupportedOperation(format!(
+                    "unsupported add for type {}",
+                    left.ty.to_string()
+                )))
+            }
+        };
         self.emit_instruction(format!(
-            "%{} = fadd {} %{}, %{}",
-            result, left.ty.to_string(), left.name, right.name
+            "%{} = {} {} %{}, %{}",
+            result,
+            op,
+            left.ty.to_string(),
+            left.name,
+            right.name
         ));
         Ok(Value::new(result, left.ty))
     }
@@ -112,9 +129,23 @@ impl FunctionBuilder {
                 right.ty.to_string()
             )));
         }
+        let op = match left.ty {
+            NovaType::Float => "fmul",
+            NovaType::Int => "mul",
+            NovaType::Bool | NovaType::Void => {
+                return Err(CodegenError::UnsupportedOperation(format!(
+                    "unsupported mul for type {}",
+                    left.ty.to_string()
+                )))
+            }
+        };
         self.emit_instruction(format!(
-            "%{} = fmul {} %{}, %{}",
-            result, left.ty.to_string(), left.name, right.name
+            "%{} = {} {} %{}, %{}",
+            result,
+            op,
+            left.ty.to_string(),
+            left.name,
+            right.name
         ));
         Ok(Value::new(result, left.ty))
     }
@@ -210,20 +241,22 @@ pub struct CompiledModule {
 
 impl CompiledModule {
     pub fn emit_ir(&self) -> String {
-        let mut ir = format!("module {{\n");
-        ir.push_str(&format!("  source_filename = \\\"{}\\\"\n", self.name));
-        ir.push_str("\n  ; Global definitions\n");
+        // LLVM IR modules do not have an outer `module {}` wrapper.
+        // This emits a textual LLVM IR module that can be fed to `llvm-as` / `opt`.
+        let mut ir = format!("; ModuleID = '{}'\n", self.name);
+        ir.push_str(&format!("source_filename = \"{}\"\n\n", self.name));
+        ir.push_str("; Global definitions\n");
 
         for (name, (ty, init)) in &self.globals {
-            ir.push_str(&format!("  @{} = global {} {}\n", name, ty.to_string(), init));
+            ir.push_str(&format!("@{} = global {} {}\n", name, ty.to_string(), init));
         }
 
-        ir.push_str("\n  ; Function definitions\n");
+        ir.push('\n');
+        ir.push_str("; Function definitions\n");
         for func in &self.functions {
             ir.push_str(&func.emit_full());
             ir.push_str("\n\n");
         }
-        ir.push('}');
         ir
     }
 }
