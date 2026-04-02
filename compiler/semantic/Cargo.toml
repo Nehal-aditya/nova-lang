@@ -8,3 +8,5 @@ repository.workspace = true
 
 [dependencies]
 thiserror = { workspace = true }
+nova_unit_resolver = { path = "../unit_resolver" }
+nova_typechecker   = { path = "../typechecker" }
