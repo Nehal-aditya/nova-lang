@@ -1,18 +1,37 @@
 ```
-# Rust/Cargo build artifacts
-target/
-Cargo.lock
+# Compiled and build artifacts
+*.a
+*.so
+*.o
+*.obj
+*.out
+build/
+compiler/build/
+compiler/lexer/build/
+compiler/parser/build/
 
 # Dependencies
-vendor/
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
 
 # Logs and temp files
 *.log
 *.tmp
+*.swp
 
 # Editors
 .vscode/
 .idea/
+
+# System files
+.DS_Store
+Thumbs.db
 
 # Environment
 .env
