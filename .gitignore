@@ -1,24 +1,37 @@
-```
-# Compiled and build artifacts
-*.a
-*.so
+# Build artifacts
+target/
+build/
+dist/
 *.o
 *.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
 *.out
-build/
-compiler/build/
-compiler/lexer/build/
-compiler/parser/build/
 
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
+# Rust
+Cargo.lock
+**/*.rs.bk
+**/target/
+
+# C/C++ build
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Java / Maven
+*.class
+*.jar
+*.war
+*.ear
+.classpath
+.project
+.settings/
 target/
-.gradle/
 
 # Python
 __pycache__/
@@ -29,6 +42,18 @@ __pycache__/
 *.log
 *.tmp
 *.swp
+*.swo
+.pytest_cache/
+.mypy_cache/
+.env
+.env.local
+*.env.*
+.venv/
+venv/
+myenv/
+
+# Node.js
+**/node_modules/
 
 # NOVA compiler output
 *.nv.out
@@ -50,8 +75,26 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Environment
-.env
-.env.local
-*.env.*
-```
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
