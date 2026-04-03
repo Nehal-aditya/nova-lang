@@ -10,16 +10,26 @@
 //!   - Memory management and allocation
 //!   - Parallel execution code generation
 //!   - Optimization passes
+//!
+//! ## Pipeline Integration
+//!
+//! The codegen phase receives typed AST from earlier phases:
+//!   Parser (C) → Unit Resolver → Type Checker → Semantic Analysis → [CodeGen]
+//!
+//! The `ast_bridge` module provides FFI bindings to consume the C parser's AST
+//! and convert it into Rust structures suitable for code generation.
 
 pub mod ir_emitter;
 pub mod ffi;
 pub mod parallel_scheduler;
+pub mod ast_bridge;
 
 pub use ir_emitter::{
     IREmitter, CodegenError, ModuleBuilder, FunctionBuilder,
 };
 pub use ffi::FFICodegen;
 pub use parallel_scheduler::ParallelScheduler;
+pub use ast_bridge::{AstConsumer, ParsedMission, ParsedStatement, ParsedExpression};
 
 use thiserror::Error;
 
