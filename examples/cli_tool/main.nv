@@ -1,0 +1,11 @@
+-- cli_tool.nv
+-- A simple CLI tool demo with --verbose handling
+
+absorb nova.cli.{ args, flag }
+
+mission main() → Void {
+  let path    = args.positional(0) ? panic("no path")
+  let verbose = flag("--verbose")
+
+  transmit("Processing {path} verbose={verbose}")
+}

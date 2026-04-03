@@ -1,0 +1,24 @@
+-- cosmo_transformer.nv
+-- Flagship AI demo: transformer pretraining with autodiff
+
+model CosmoTransformer {
+  layer embedding(vocab=32000, dim=1024)
+  layer repeat(24) {
+    layer attention(heads=16, dim=1024, kind=.causal)
+    layer feedforward(dim=4096, activation=.gelu)
+    layer norm(.rms)
+  }
+  layer linear(32000)
+}
+
+parallel mission pretrain(
+  net  : CosmoTransformer,
+  data : Dataset[Tensor[Int, 2048], Tensor[Int, 2048]]
+) → CosmoTransformer {
+  for batch in data.batches(8) {
+    let logits = net.forward(batch.x)
+    let loss   = cross_entropy(logits.shift(1), batch.y)
+    autodiff(loss) { net.update(adamw, lr=3e-4, wd=0.1) }
+  }
+  return net
+}

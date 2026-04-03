@@ -1,0 +1,21 @@
+-- hubble_constant.nv
+-- Compute the Hubble constant from a Type Ia supernova catalogue
+
+absorb cosmos.astro.{ read_fits }
+absorb cosmos.stats.{ linear_fit }
+
+parallel mission hubble_constant(catalog: Wave) → Float[km/s/Mpc] {
+  let c   = 299792.458[km/s]
+  let sne =
+    read_fits(catalog)
+    |> pipeline [
+        filter(type == "Ia"),
+        map(sn → {
+              v:  sn.z * c,
+              d:  sn.distance_mpc,
+            }),
+      ]
+
+  let (slope, _) = linear_fit(sne.d, sne.v)
+  return slope
+}

@@ -1,0 +1,16 @@
+-- web_server.nv
+-- A general-purpose web server demo
+
+absorb nova.net.{ serve, route, get, post, Response }
+
+mission handle_inference() → Response {
+  return Response.ok("infer: ok")
+}
+
+mission main() → Void {
+  serve(port: 8080) |> route [
+    get("/") => Response.ok("Hello from NOVA"),
+    get("/health") => Response.ok("nominal"),
+    post("/infer") => handle_inference,
+  ]
+}

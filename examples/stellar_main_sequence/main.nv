@@ -1,0 +1,29 @@
+-- stellar_main_sequence.nv
+-- Flagship scientific demo: stellar main sequence statistics
+
+absorb cosmos.stats.{ pearson, linear_fit }
+absorb cosmos.data.{ read_fits, pipeline }
+absorb cosmos.plot.{ scatter, regression_line }
+
+parallel mission analyze_main_sequence(catalog: Wave) → Void {
+  let stars =
+    read_fits(catalog)
+    |> pipeline [
+        filter(luminosity_class == "V"), -- main sequence only
+        map(s → {
+              mass: s.mass_solar,
+              lum:  log10(s.luminosity_solar),
+            }),
+        drop_outliers(sigma: 3.0),
+      ]
+
+  let r = pearson(stars.mass, stars.lum)
+  let (slope, icept) = linear_fit(stars.mass, stars.lum)
+
+  transmit("Pearson r = {r:.4}  |  log(L) = {slope:.3}·M + {icept:.3}")
+  scatter(stars.mass, stars.lum,
+          title: "Main sequence: mass vs log luminosity",
+          xlabel: "Mass (M☉)",
+          ylabel: "log10(L) (L☉)")
+  regression_line(slope, icept, x_range: (-1.0, 1.0))
+}
