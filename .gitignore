@@ -20,14 +20,31 @@ __pycache__/
 target/
 .gradle/
 
-# Logs and temp files
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
 *.log
 *.tmp
 *.swp
 
-# Editors
+# NOVA compiler output
+*.nv.out
+*.nvo
+nova_cache/
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# IDE / Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # System files
 .DS_Store
